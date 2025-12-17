@@ -4,13 +4,13 @@ Intelligent recommendation system for SHL assessments using **Hybrid Search + LL
 
 ## Features
 
-- **Groq LLM** (llama-3.1-8b-instant) for intelligent reranking
+- **Groq LLM** for intelligent reranking
 - **Pydantic** structured output for reliable parsing
 - **Hybrid Search**: BM25 keyword + TF-IDF semantic
 - **Sentence Transformers** embeddings (384-dim)
 - **Smart Balancing**: Distributes test types (K/P/C/B)
 - **FastAPI** backend with auto-documentation
-- **Modern Web UI** with dark theme
+
 
 ## Quick Start
 
