@@ -36,4 +36,3 @@ TEST_TYPES = {
     'B': 'Behavioral',
     'C': 'Cognitive'
 }
-#hi
