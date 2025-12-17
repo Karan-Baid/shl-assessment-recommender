@@ -4,7 +4,7 @@ import re
 from typing import List, Dict, Optional, Set
 from bs4 import BeautifulSoup
 import requests
-from tqdm import tqdm#hi
+from tqdm import tqdm
 import config
 
 def extract_assessment_details(soup: BeautifulSoup, url: str) -> Optional[Dict]:
