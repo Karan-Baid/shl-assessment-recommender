@@ -7,9 +7,10 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
-from api.models import RecommendationRequest, RecommendationResponse
+from api.models import RecommendRequest, RecommendResponse, Assessment, HealthResponse
 from retriever import LightweightRetriever
 from llm_service import LLMService
+import config
 
 app = FastAPI(
     title="SHL Assessment Recommendation API",
@@ -41,56 +42,52 @@ async def startup_event():
 
     print("\nSystem initialized successfully!")
 
-@app.get("/health")
+@app.get("/health", response_model=HealthResponse)
 async def health_check():
-    return {
-        "status": "healthy",
-        "message": "Assessment Recommendation API is running",
-        "llm_active": llm_service.provider is not None,
-        "assessments_loaded": len(retriever.assessments)
-    }
+    return HealthResponse(
+        status="healthy",
+        message="Assessment Recommendation API is running"
+    )
 
-@app.post("/recommend", response_model=RecommendationResponse)
-async def recommend_assessments(request: RecommendationRequest):
+@app.post("/recommend", response_model=RecommendResponse)
+async def recommend_assessments(request: RecommendRequest):
     try:
-        if not request.query or not request.query.strip():
-            raise HTTPException(status_code=400, detail="Query cannot be empty")
-        
-        retrieved = retriever.search(request.query, top_k=30)
-        
-        if not retrieved:
-            return RecommendationResponse(
+        if not retriever:
+            raise HTTPException(status_code=500, detail="Retriever not initialized")
+
+        top_k = min(request.top_k or 10, 10)
+
+        candidates = retriever.hybrid_search(
+            query=request.query,
+            top_k=config.TOP_K_RETRIEVAL
+        )
+
+        if llm_service:
+            reranked = llm_service.rerank_assessments(
                 query=request.query,
-                recommendations=[],
-                total_results=0
-            )
-        
-        if llm_service.provider:
-            final = llm_service.rerank_assessments(
-                query=request.query,
-                assessments=retrieved,
-                top_k=request.top_k
+                assessments=candidates,
+                top_k=top_k
             )
         else:
-            final = retrieved[:request.top_k]
-        
+            reranked = candidates[:top_k]
+
         recommendations = []
-        for asmt in final:
-            recommendations.append({
-                "assessment_name": asmt['name'],
-                "assessment_url": asmt['url'],
-                "test_type": asmt.get('test_type', 'K'),
-                "score": asmt.get('score', 0.0)
-            })
-        
-        return RecommendationResponse(
+        for asmt in reranked:
+            recommendations.append(Assessment(
+                assessment_name=asmt['name'],
+                assessment_url=asmt['url'],
+                test_type=asmt.get('test_type'),
+                score=asmt.get('retrieval_score', 0.0)
+            ))
+
+        return RecommendResponse(
             query=request.query,
             recommendations=recommendations,
             total_results=len(recommendations)
         )
-    
+
     except Exception as e:
-        print(f"Error in recommend endpoint: {e}")
+        print(f"Error in recommendation: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 app.mount("/", StaticFiles(directory="frontend", html=True), name="frontend")
