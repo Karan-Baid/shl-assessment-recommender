@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SHL Assessment Recommender</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+                    <rect width="40" height="40" rx="8" fill="url(#gradient)"/>
+                    <path d="M20 10L30 25H10L20 10Z" fill="white" opacity="0.9"/>
+                    <defs>
+                        <linearGradient id="gradient" x1="0" y1="0" x2="40" y2="40">
+                            <stop offset="0%" stop-color="#6366f1"/>
+                            <stop offset="100%" stop-color="#8b5cf6"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+                <h1>SHL Assessment Recommender</h1>
+            </div>
+            <p class="subtitle">AI-powered assessment recommendations for your hiring needs</p>
+        </header>
+
+        <main>
+            <div class="search-section">
+                <div class="input-group">
+                    <label for="query">Job Description or Requirements</label>
+                    <textarea 
+                        id="query" 
+                        placeholder="Example: I am hiring for Java developers who can also collaborate effectively with my business teams..."
+                        rows="5"
+                    ></textarea>
+                </div>
+                <button id="searchBtn" class="primary-btn">
+                    <span class="btn-text">Get Recommendations</span>
+                    <svg class="btn-icon" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <path d="M14 10L8 6V14L14 10Z" fill="currentColor"/>
+                    </svg>
+                </button>
+            </div>
+
+            <div id="loading" class="loading hidden">
+                <div class="spinner"></div>
+                <p>Finding best assessments...</p>
+            </div>
+
+            <div id="error" class="error hidden">
+                <svg width="24" height="24" fill="none" viewBox="0 0 24 24">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8V12M12 16H12.01M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z"/>
+                </svg>
+                <p id="errorMessage"></p>
+            </div>
+
+            <div id="results" class="results hidden">
+                <div class="results-header">
+                    <h2>Recommended Assessments</h2>
+                    <span id="resultCount" class="badge"></span>
+                </div>
+                <div id="resultsList" class="results-list"></div>
+            </div>
+        </main>
+
+        <footer>
+            <p>Powered by Hybrid Search + LLM Reranking</p>
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
