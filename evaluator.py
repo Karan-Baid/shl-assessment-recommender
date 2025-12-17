@@ -1,4 +1,4 @@
-import json#h
+import json
 import pandas as pd
 from typing import List, Dict, Tuple
 from retriever import LightweightRetriever
