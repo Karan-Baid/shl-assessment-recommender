@@ -1,17 +1,7 @@
-// Configuration
-const API_BASE_URL = '''';
 
-// DOM Elements
-const queryInput = document.getElementById('query');
-const searchBtn = document.getElementById('searchBtn');
-const loading = document.getElementById('loading');
-const error = document.getElementById('error');
-const errorMessage = document.getElementById('errorMessage');
-const results = document.getElementById('results');
-const resultsList = document.getElementById('resultsList');
-const resultCount = document.getElementById('resultCount');
+const API_BASE_URL = '';
 
-// Test type labels
+
 const TEST_TYPE_LABELS = {
     'K': 'Knowledge & Skills',
     'P': 'Personality & Behavior',
@@ -19,22 +9,40 @@ const TEST_TYPE_LABELS = {
     'B': 'Behavioral'
 };
 
-// Sample queries
+
 const sampleQueries = [
     "I am hiring for Java developers who can also collaborate effectively with my business teams",
     "Looking to hire mid-level professionals who are proficient in Python, SQL and JavaScript",
     "I want to hire new graduates for a sales role in my company"
 ];
 
-// Event Listeners
-searchBtn.addEventListener('click', handleSearch);
-queryInput.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' && e.ctrlKey) {
-        handleSearch();
-    }
+
+let queryInput, searchBtn, loading, error, errorMessage, results, resultsList, resultCount;
+
+document.addEventListener('DOMContentLoaded', () => {
+
+    queryInput = document.getElementById('query');
+    searchBtn = document.getElementById('searchBtn');
+    loading = document.getElementById('loading');
+    error = document.getElementById('error');
+    errorMessage = document.getElementById('errorMessage');
+    results = document.getElementById('results');
+    resultsList = document.getElementById('resultsList');
+    resultCount = document.getElementById('resultCount');
+
+
+    searchBtn.addEventListener('click', handleSearch);
+    queryInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && e.ctrlKey) {
+            handleSearch();
+        }
+    });
+
+    const randomSample = sampleQueries[Math.floor(Math.random() * sampleQueries.length)];
+    queryInput.value = randomSample;
+    queryInput.placeholder = randomSample;
 });
 
-// Main search function
 async function handleSearch() {
     const query = queryInput.value.trim();
 
@@ -43,13 +51,12 @@ async function handleSearch() {
         return;
     }
 
-    // Reset UI
+
     hideError();
     hideResults();
     showLoading();
 
     try {
-        // Call API
         const response = await fetch(`${API_BASE_URL}/recommend`, {
             method: 'POST',
             headers: {
@@ -67,7 +74,6 @@ async function handleSearch() {
 
         const data = await response.json();
 
-        // Display results
         displayResults(data);
 
     } catch (err) {
@@ -78,7 +84,7 @@ async function handleSearch() {
     }
 }
 
-// Display results
+
 function displayResults(data) {
     const recommendations = data.recommendations || [];
 
@@ -87,26 +93,22 @@ function displayResults(data) {
         return;
     }
 
-    // Update count
     resultCount.textContent = `${recommendations.length} Results`;
 
-    // Clear previous results
     resultsList.innerHTML = '';
 
-    // Render each result
+
     recommendations.forEach((assessment, index) => {
         const card = createResultCard(assessment, index + 1);
         resultsList.appendChild(card);
 
-        // Stagger animation
         card.style.animationDelay = `${index * 0.05}s`;
     });
 
-    // Show results
     showResults();
 }
 
-// Create result card
+
 function createResultCard(assessment, rank) {
     const card = document.createElement('div');
     card.className = 'result-card';
@@ -135,7 +137,7 @@ function createResultCard(assessment, rank) {
     return card;
 }
 
-// UI Helper Functions
+
 function showLoading() {
     loading.classList.remove('hidden');
     searchBtn.disabled = true;
@@ -168,10 +170,3 @@ function escapeHtml(text) {
     div.textContent = text;
     return div.innerHTML;
 }
-
-// Initialize with a sample query
-window.addEventListener('load', () => {
-    const randomSample = sampleQueries[Math.floor(Math.random() * sampleQueries.length)];
-    queryInput.value = randomSample;
-    queryInput.placeholder = randomSample;
-});
